@@ -61,6 +61,8 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.lbtongma = new System.Windows.Forms.Label();
+            this.nuthts_trung = new danhmucVM_client.nuthts();
+            this.label1 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbxoamatong)).BeginInit();
@@ -435,6 +437,28 @@
             this.lbtongma.Text = "0";
             this.lbtongma.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // nuthts_trung
+            // 
+            this.nuthts_trung.AutoSize = true;
+            this.nuthts_trung.Location = new System.Drawing.Point(360, 195);
+            this.nuthts_trung.Name = "nuthts_trung";
+            this.nuthts_trung.Padding = new System.Windows.Forms.Padding(6);
+            this.nuthts_trung.Size = new System.Drawing.Size(73, 29);
+            this.nuthts_trung.TabIndex = 19;
+            this.nuthts_trung.Text = "nuthts1";
+            this.nuthts_trung.UseVisualStyleBackColor = true;
+            this.nuthts_trung.CheckedChanged += new System.EventHandler(this.nuthts_trung_CheckedChanged);
+            // 
+            // label1
+            // 
+            this.label1.Font = new System.Drawing.Font("Comic Sans MS", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(187, 200);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(152, 23);
+            this.label1.TabIndex = 4;
+            this.label1.Text = "Tìm các mã chưa trưng:";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // Formchinh
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -442,6 +466,7 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1350, 691);
+            this.Controls.Add(this.nuthts_trung);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.pbphatanh);
@@ -449,6 +474,7 @@
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.pbanhsanpham);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.datag1);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.monthCalendar1);
@@ -473,6 +499,7 @@
             this.groupBox3.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -507,6 +534,8 @@
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.Label lbtongma;
         private System.Windows.Forms.PictureBox pbAMTHANH;
+        private nuthts nuthts_trung;
+        private System.Windows.Forms.Label label1;
     }
 }
 

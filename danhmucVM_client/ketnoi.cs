@@ -195,6 +195,22 @@ namespace danhmucVM_client
             Close();
             return h;
         }
+        public string tongmatrongkhoangngaychon_chuatrung(string ngaydau, string ngaycuoi)
+        {
+            string sql = string.Format(@"select count(matong) 
+                                        from hangduocban 
+                                        where ngaydangso >= '{0}' and ngaydangso <= '{1}' and ({2} is null or {2} = 'Chưa trưng bán')", ngaydau, ngaycuoi,cottrunghang);
+            string h = null;
+            Open();
+            MySqlCommand cmd = new MySqlCommand(sql, connection);
+            MySqlDataReader dtr = cmd.ExecuteReader();
+            while (dtr.Read())
+            {
+                h = dtr[0].ToString();
+            }
+            Close();
+            return h;
+        }
         // lay ngay gan nhat trong bang hang duoc ban
         public string layngayganhat()
         {
@@ -223,7 +239,9 @@ namespace danhmucVM_client
         // lay thong tin khi kich chon ngay
         public DataTable laythongtinkhichonngay(string ngaychon)
         {
-            string sql = string.Format("SELECT matong as 'Mã tổng',mota as 'Mô tả',chude as 'Chủ đề',ghichu as 'Ghi chú',ngayban as 'Ngày bán',{1} as 'Trưng hàng' FROM hangduocban where ngayban = '{0}' Group by matong", ngaychon,cottrunghang);
+            string sql = string.Format(@"SELECT matong as 'Mã tổng',mota as 'Mô tả',chude as 'Chủ đề',ghichu as 'Ghi chú',ngayban as 'Ngày bán',{1} as 'Trưng hàng' 
+                                        FROM hangduocban 
+                                        where ngaydangso = '{0}' Group by matong", ngaychon,cottrunghang);
             DataTable dt = new DataTable();
             Open();
             MySqlDataAdapter dta = new MySqlDataAdapter(sql, connection);
@@ -254,7 +272,10 @@ namespace danhmucVM_client
         // xuatbang cho viec in chi lay 3 cot matong bst ngayban
         public DataTable laythongtinIn(string ngaybatdau, string ngayketthuc)
         {
-            string sql = string.Format("SELECT matong as 'Mã tổng',chude as 'Chủ đề',{2} as 'Trưng hàng' FROM hangduocban where ngaydangso >= '{0}' and ngaydangso <= '{1}' group by matong", ngaybatdau, ngayketthuc,cottrunghang);
+            string sql = string.Format(@"SELECT matong as 'Mã tổng',chude as 'Chủ đề',{2} as 'Trưng hàng' 
+                                        FROM hangduocban 
+                                        where ngaydangso >= '{0}' and ngaydangso <= '{1}' and ({2} is null or {2} = 'Chưa trưng bán') 
+                                        order by matong", ngaybatdau, ngayketthuc,cottrunghang);
             DataTable dt = new DataTable();
             Open();
             MySqlDataAdapter dta = new MySqlDataAdapter(sql, connection);
@@ -358,6 +379,30 @@ namespace danhmucVM_client
             MySqlCommand cmd = new MySqlCommand(sql, connection);
             cmd.ExecuteNonQuery();
             Close();
+        }
+        public string GetPhienban(string tenungdung)
+        {
+            string kq = null;
+            string sql = "select phienban from bangcapnhatphanmem where tenungdung = '" + tenungdung + "'";
+            Open();
+            MySqlCommand cmd = new MySqlCommand(sql, connection);
+            MySqlDataReader dtr = cmd.ExecuteReader();
+            dtr.Read();
+            kq = dtr[0].ToString();
+            Close();
+            return kq;
+        }
+        public DataTable laydanhsachCHUATRUNG()
+        {
+            string sql = string.Format(@"SELECT matong as 'Mã tổng',mota as 'Mô tả',chude as 'Chủ đề',ghichu as 'Ghi chú',ngayban as 'Ngày bán',{0} as 'Trưng hàng' 
+                                        FROM hangduocban 
+                                        WHERE {0} = 'Chưa trưng bán' or {0} is null order by ngaydangso", cottrunghang);
+            DataTable dt = new DataTable();
+            Open();
+            MySqlDataAdapter dta = new MySqlDataAdapter(sql, connection);
+            dta.Fill(dt);
+            Close();
+            return dt;
         }
         #endregion
     }

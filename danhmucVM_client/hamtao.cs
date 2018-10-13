@@ -117,10 +117,11 @@ namespace danhmucVM_client
 
             worksheet.Cells["A1:C1"].Merge = true;
             worksheet.Cells["A2:C2"].Merge = true;
-            worksheet.Cells["A1"].Value = "Danh mục VM";
+            worksheet.Cells["A3:C3"].Merge = true;
+            worksheet.Cells["A1"].Value = "Danh mục VM _ Mã chưa trưng";
             worksheet.Cells["A2"].Value = "Từ ngày: " + ngaybatdau + " - " + ngayketthuc;
 
-            worksheet.Cells["A3"].Value = "Tổng mã:";
+            worksheet.Cells["A3"].Value = "Tổng mã chưa trưng:  ";
             worksheet.Cells["B3"].Value = tongma;
             worksheet.Cells["A5"].LoadFromDataTable(dt, true,OfficeOpenXml.Table.TableStyles.Light1);
 

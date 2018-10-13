@@ -14,6 +14,7 @@ using System.Globalization;
 using AnhLuu = danhmucVM_client.Properties.Resources;
 using System.Threading;
 using System.IO;
+using System.Diagnostics;
 
 namespace danhmucVM_client
 {
@@ -46,7 +47,9 @@ namespace danhmucVM_client
         Thread tudongloadanh;
         Thread capnhatanhmoi;
         Thread LoadLandau;
-        
+        Thread closecheckupdate;
+        Thread capnhat;
+
         public Formchinh()
         {
             InitializeComponent();
@@ -54,6 +57,14 @@ namespace danhmucVM_client
             {
                 Directory.CreateDirectory(duongdanchuaanh);
             }
+            closecheckupdate = new Thread(CloseCheckupdate);
+            closecheckupdate.IsBackground = true;
+            closecheckupdate.Start();
+
+            capnhat = new Thread(hamcapnhat);
+            capnhat.IsBackground = true;
+            capnhat.Start();
+
             LoadLandau = new Thread(loadLandautien);
             LoadLandau.IsBackground = true;
             LoadLandau.Start();
@@ -65,9 +76,67 @@ namespace danhmucVM_client
             capnhatanhmoi = new Thread(taianhstuserver);
             capnhatanhmoi.IsBackground = true;
             capnhatanhmoi.Start();
+
+            
+
+            if (!File.Exists("capnhat.json"))
+            {
+                string h = @"{
+                            'phienban' : '0',
+                            'ngaycapnhat' : '-',
+                            'phienbanSV' : '0' 
+                            }                          
+                            ";
+                File.WriteAllText("capnhat.json", h);
+            }
+        }
+        public void hamcapnhat()
+        {
+            closecheckupdate.Join();
+            try
+            {
+                var con = ketnoi.Instance();
+                xulyJSON js = new xulyJSON();
+                string layPhienbanSV = con.GetPhienban("vmcnf");
+                js.UpdatevalueJSON("phienbanSV", layPhienbanSV);
+                string layphienbanClient = js.ReadJSON("phienban");
+
+                if (layphienbanClient != layPhienbanSV)
+                {
+                    this.Invoke(new MethodInvoker(delegate ()
+                    {
+                        DialogResult hoi = MessageBox.Show(this, "Có phiên bản cập nhật mới\nCó muốn cập nhật luôn không?\n\n(Chú ý: Chương trình sẽ đóng lại)", "New update", MessageBoxButtons.YesNo);
+                        if (hoi == DialogResult.Yes)
+                        {
+                            Process chayupdate = Process.Start(Application.StartupPath + "/checkUpdate.exe");
+                            Application.Exit();
+                        }
+                    }));
+                }
+            }
+            catch (Exception e)
+            {
+                ghiloi.WriteLogError(e);
+                return;
+            }
+        }
+        public void CloseCheckupdate()
+        {
+            Process[] GetPArry = Process.GetProcesses();
+            foreach (Process testProcess in GetPArry)
+            {
+                string ProcessName = testProcess.ProcessName;
+                if (ProcessName.CompareTo("checkUpdate") == 0)
+                {
+                    testProcess.Kill();
+                    return;
+                }
+
+            }
         }
         void loadLandautien()
         {
+            capnhat.Join();
             try
             {
                 while (true)
@@ -230,7 +299,9 @@ namespace danhmucVM_client
         {
             try
             {
+
                 var con = ketnoi.Instance();
+                
                 if (datag1.SelectedRows.Count > 0)
                 {
                     string matong = null;
@@ -238,14 +309,19 @@ namespace danhmucVM_client
                     {
                         matong = row.Cells[0].Value.ToString();
                         con.updatedatrunghangthanhdatrung(matong);
-                        sodongchon = datag1.SelectedRows.Count;
-                        NotificationHts("Vừa cập nhật : " + sodongchon.ToString() + " mã hàng");
                     }
+                    sodongchon = datag1.SelectedRows.Count;
                     if (ngaychonbandau == null)
                     {
                         ngaychonbandau = con.layngayganhat();
                     }
-                    datag1.DataSource = con.laythongtinkhichonngay(ngaychonbandau);
+                    if (nuthts_trung.Checked)
+                    {
+                        datag1.DataSource = con.laydanhsachCHUATRUNG();
+                    }
+                    else datag1.DataSource = con.laythongtinkhichonngay(ngaychonbandau);
+                    updatesoluongtrenbang();
+                    NotificationHts("Vừa cập nhật : " + sodongchon.ToString() + " mã hàng");
                 }
             }
             catch (Exception ex)
@@ -268,14 +344,16 @@ namespace danhmucVM_client
                     {
                         matong = row.Cells[0].Value.ToString();
                         con.updatetrunghangthanhchuatrung(matong);
-                        sodongchon = datag1.SelectedRows.Count;
-                        NotificationHts("Vừa cập nhật : " + sodongchon.ToString() + " mã hàng");
+                        
                     }
+                    sodongchon = datag1.SelectedRows.Count;
+                    NotificationHts("Vừa cập nhật : " + sodongchon.ToString() + " mã hàng");
                     if (ngaychonbandau == null)
                     {
                         ngaychonbandau = con.layngayganhat();
                     }
                     datag1.DataSource = con.laythongtinkhichonngay(ngaychonbandau);
+                    updatesoluongtrenbang();
                 }
             }
             catch (Exception ex)
@@ -468,11 +546,13 @@ namespace danhmucVM_client
                 DataTable dt = new DataTable();
                 dt = con.laythongtinkhoangngay(ngaybatdau, ngayketthuc);
                 string tongsoma = con.tongmatrongkhoangngaychon(ngaybatdau, ngayketthuc);
+                string tongmachuatrung = con.tongmatrongkhoangngaychon_chuatrung(ngaybatdau, ngayketthuc);
+
                 DialogResult dlog = MessageBox.Show("Có muốn lưu file excel không hay in luôn. \nNhấn 'YES' sẽ lưu file và 'NO' sẽ in luôn","IN LUÔN ?",MessageBoxButtons.YesNo);
                 if (dlog == DialogResult.Yes)
                 {
                     ham.Xuatfileexcel(dt, ngaybatdau, ngayketthuc, tongsoma);
-                    ham.taovainfileexcel(con.laythongtinIn(ngaybatdau, ngayketthuc), tongsoma, ngaybatdau, ngayketthuc);
+                    ham.taovainfileexcel(con.laythongtinIn(ngaybatdau, ngayketthuc), tongmachuatrung, ngaybatdau, ngayketthuc);
 
                     PopupNotifier popexcel = new PopupNotifier();
                     popexcel.TitleText = "Thông báo";
@@ -495,34 +575,10 @@ namespace danhmucVM_client
                 }
                 else
                 {
-                    ham.taovainfileexcel(con.laythongtinIn(ngaybatdau, ngayketthuc), tongsoma, ngaybatdau, ngayketthuc);
+                    ham.taovainfileexcel(con.laythongtinIn(ngaybatdau, ngayketthuc), tongmachuatrung, ngaybatdau, ngayketthuc);
 
                    
                 }
-                //if (ham.Xuatfileexcel(dt, ngaybatdau, ngayketthuc, tongsoma))
-                //{
-                //    ham.taovainfileexcel(con.laythongtinIn(ngaybatdau, ngayketthuc), tongsoma,ngaybatdau,ngayketthuc);
-
-                //    PopupNotifier popexcel = new PopupNotifier();
-                //    popexcel.TitleText = "Thông báo";
-                //    popexcel.ContentText = "Vừa xuất file excel \nClick vào đây để mở file";
-                //    popexcel.IsRightToLeft = false;
-                //    popexcel.Image = Properties.Resources.excel;
-                //    popexcel.TitleColor = System.Drawing.Color.Navy;
-                //    popexcel.TitleFont = new System.Drawing.Font("Comic Sans MS", 12, System.Drawing.FontStyle.Underline);
-                //    popexcel.BodyColor = System.Drawing.Color.DimGray;
-                //    popexcel.Size = new System.Drawing.Size(380, 130);
-                //    popexcel.ImageSize = new System.Drawing.Size(100, 100);
-                //    popexcel.ImagePadding = new Padding(15);
-                //    popexcel.ContentColor = System.Drawing.Color.White;
-                //    popexcel.ContentFont = new System.Drawing.Font("Comic Sans MS", 15, System.Drawing.FontStyle.Bold);
-                //    popexcel.Delay = 3500;
-                //    popexcel.BorderColor = System.Drawing.Color.DimGray;
-                //    popexcel.HeaderHeight = 1;
-                //    popexcel.Click += Popexcel_Click;
-                //    popexcel.Popup();
-
-                //}
 
 
             }
@@ -584,6 +640,21 @@ namespace danhmucVM_client
             }
         }
 
-        
+        private void nuthts_trung_CheckedChanged(object sender, EventArgs e)
+        {
+            //bat se loc ra nhung ma hang chua duoc trung, sau khi nhan vao da trung se loc 1 lan nua
+            var con = ketnoi.Instance();
+            if (nuthts_trung.Checked)
+            {
+
+                datag1.DataSource = con.laydanhsachCHUATRUNG();
+                updatesoluongtrenbang();
+            }
+            else
+            {
+                datag1.DataSource = con.laythongtinngayganhat(ngaychonbandau);
+                updatesoluongtrenbang();
+            }
+        }
     }
 }

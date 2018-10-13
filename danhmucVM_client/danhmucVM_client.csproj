@@ -61,6 +61,10 @@
       <HintPath>..\packages\MySql.Data.8.0.11\lib\net452\MySql.Data.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel" />
@@ -118,10 +122,14 @@
       <DependentUpon>form_login.cs</DependentUpon>
     </Compile>
     <Compile Include="ftp.cs" />
+    <Compile Include="ghiloi.cs" />
     <Compile Include="hamtao.cs" />
     <Compile Include="ketnoi.cs" />
     <Compile Include="ketnoisqlite.cs" />
     <Compile Include="laythongtin.cs" />
+    <Compile Include="nuthts.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="taotaikhoan.cs">
@@ -130,6 +138,7 @@
     <Compile Include="taotaikhoan.Designer.cs">
       <DependentUpon>taotaikhoan.cs</DependentUpon>
     </Compile>
+    <Compile Include="xulyJSON.cs" />
     <EmbeddedResource Include="dangnhap.resx">
       <DependentUpon>dangnhap.cs</DependentUpon>
     </EmbeddedResource>

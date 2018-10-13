@@ -119,9 +119,6 @@ namespace danhmucVM_client
         {
             try
             {
-                //khoidong = new Thread(khoidongct);
-                //khoidong.IsBackground = true;
-                //khoidong.Start();
                 if (!Directory.Exists(Application.StartupPath + @"\luuanh"))
                 {
                     Directory.CreateDirectory(Application.StartupPath + @"\luuanh");
