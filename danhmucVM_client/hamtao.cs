@@ -121,8 +121,7 @@ namespace danhmucVM_client
             worksheet.Cells["A1"].Value = "Danh mục VM _ Mã chưa trưng";
             worksheet.Cells["A2"].Value = "Từ ngày: " + ngaybatdau + " - " + ngayketthuc;
 
-            worksheet.Cells["A3"].Value = "Tổng mã chưa trưng:  ";
-            worksheet.Cells["B3"].Value = tongma;
+            worksheet.Cells["A3"].Value = "Tổng mã chưa trưng:  " + tongma;
             worksheet.Cells["A5"].LoadFromDataTable(dt, true,OfficeOpenXml.Table.TableStyles.Light1);
 
             worksheet.Column(1).Width = 10;
