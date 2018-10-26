@@ -142,7 +142,11 @@ namespace danhmucVM_client
         #region xu ly tren form
         public DataTable loctheotenmatong(string matong)
         {
-            string sql = string.Format("SELECT matong as 'Mã tổng',mota as 'Mô tả',chude as 'Chủ đề',ghichu as 'Ghi chú',ngayban as 'Ngày bán',{0} as 'Trưng hàng' FROM hangduocban where matong like '{1}%' Group by matong", cottrunghang ,matong);
+            string sql = string.Format(@"SELECT matong as 'Mã tổng',mota as 'Mô tả',chude as 'Chủ đề',ghichu as 'Ghi chú',ngayban as 'Ngày bán',{0} as 'Trưng hàng' 
+                                        FROM hangduocban 
+                                        where matong 
+                                        like '{1}%' 
+                                        Group by matong", cottrunghang ,matong);
             DataTable dt = new DataTable();
             Open();
             MySqlDataAdapter dta = new MySqlDataAdapter(sql, connection);
@@ -199,7 +203,7 @@ namespace danhmucVM_client
         {
             string sql = string.Format(@"select count(matong) 
                                         from hangduocban 
-                                        where ngaydangso >= '{0}' and ngaydangso <= '{1}' and ({2} is null or {2} = 'Chưa trưng bán')", ngaydau, ngaycuoi,cottrunghang);
+                                        where ngaydangso >= '{0}' and ngaydangso <= '{1}' and ({2} is null or {2} = 'Chưa trưng bán' or {2} ='')", ngaydau, ngaycuoi,cottrunghang);
             string h = null;
             Open();
             MySqlCommand cmd = new MySqlCommand(sql, connection);
@@ -228,7 +232,10 @@ namespace danhmucVM_client
         }
         public DataTable laythongtinngayganhat(string ngaygannhat)
         {
-            string sql = string.Format("SELECT matong as 'Mã tổng',mota as 'Mô tả',chude as 'Chủ đề',ghichu as 'Ghi chú',ngayban as 'Ngày bán',{1} as 'Trưng hàng' FROM hangduocban where ngaydangso = '{0}' Group by matong", ngaygannhat,cottrunghang);
+            string sql = string.Format(@"SELECT matong as 'Mã tổng',mota as 'Mô tả',chude as 'Chủ đề',ghichu as 'Ghi chú',ngayban as 'Ngày bán',{1} as 'Trưng hàng' 
+                                        FROM hangduocban 
+                                        where ngaydangso = '{0}' 
+                                        Order by matong", ngaygannhat,cottrunghang);
             DataTable dt = new DataTable();
             Open();
             MySqlDataAdapter dta = new MySqlDataAdapter(sql, connection);
@@ -237,11 +244,11 @@ namespace danhmucVM_client
             return dt;
         }
         // lay thong tin khi kich chon ngay
-        public DataTable laythongtinkhichonngay(string ngaychon)
+        public DataTable laythongtinkhichonngay(string cotngay, string ngaychon)
         {
             string sql = string.Format(@"SELECT matong as 'Mã tổng',mota as 'Mô tả',chude as 'Chủ đề',ghichu as 'Ghi chú',ngayban as 'Ngày bán',{1} as 'Trưng hàng' 
                                         FROM hangduocban 
-                                        where ngaydangso = '{0}' Group by matong", ngaychon,cottrunghang);
+                                        where {2} = '{0}' Order by matong", ngaychon,cottrunghang,cotngay);
             DataTable dt = new DataTable();
             Open();
             MySqlDataAdapter dta = new MySqlDataAdapter(sql, connection);
@@ -261,7 +268,11 @@ namespace danhmucVM_client
         // xuat bang khi chon khoang ngay cho viec xuat excel va in
         public DataTable laythongtinkhoangngay(string ngaybatday, string ngayketthuc)
         {
-            string sql = string.Format("SELECT matong as 'Mã tổng',mota as 'Mô tả',chude as 'Chủ đề',ghichu as 'Ghi chú',ngayban as 'Ngày bán',{2} as 'Trưng hàng' FROM hangduocban where ngaydangso >= '{0}' and ngaydangso <= '{1}' Group by matong", ngaybatday, ngayketthuc,cottrunghang);
+            string sql = string.Format(@"SELECT matong as 'Mã tổng',mota as 'Mô tả',chude as 'Chủ đề',ghichu as 'Ghi chú',ngayban as 'Ngày bán',{2} as 'Trưng hàng' 
+                                        FROM hangduocban 
+                                        where ngaydangso >= '{0}' 
+                                        and ngaydangso <= '{1}' 
+                                        Order by matong", ngaybatday, ngayketthuc,cottrunghang);
             DataTable dt = new DataTable();
             Open();
             MySqlDataAdapter dta = new MySqlDataAdapter(sql, connection);
@@ -274,7 +285,7 @@ namespace danhmucVM_client
         {
             string sql = string.Format(@"SELECT matong as 'Mã tổng',chude as 'Chủ đề',{2} as 'Trưng hàng' 
                                         FROM hangduocban 
-                                        where ngaydangso >= '{0}' and ngaydangso <= '{1}' and ({2} is null or {2} = 'Chưa trưng bán') 
+                                        where ngaydangso >= '{0}' and ngaydangso <= '{1}' and ({2} is null or {2} = 'Chưa trưng bán' or {2} ='') 
                                         order by matong", ngaybatdau, ngayketthuc,cottrunghang);
             DataTable dt = new DataTable();
             Open();
@@ -286,7 +297,8 @@ namespace danhmucVM_client
         // update gia tri cot trung hang thanh " da trung hang"
         public void updatedatrunghangthanhdatrung(string matong)
         {
-            if (Kiemtra(cottrunghang, "hangduocban", "matong", matong) == null || Kiemtra(cottrunghang, "hangduocban", "matong", matong) == "Chưa trưng bán" || Kiemtra(cottrunghang, "hangduocban", "matong", matong) == "")
+            string ch = Kiemtra(cottrunghang, "hangduocban", "matong", matong);
+            if (ch == null || ch == "Chưa trưng bán" || ch == "")
             {
                 string sql = string.Format("UPDATE hangduocban SET {2}='{0}' WHERE matong='{1}'", "Đã Trưng Bán", matong,cottrunghang);
                 MySqlCommand cmd = new MySqlCommand(sql, connection);
@@ -299,7 +311,8 @@ namespace danhmucVM_client
         // update thanh chua trung hang
         public void updatetrunghangthanhchuatrung(string matong)
         {
-            if (Kiemtra(cottrunghang, "hangduocban", "matong", matong) == "Đã Trưng Bán" || Kiemtra(cottrunghang, "hangduocban", "matong", matong) == null)
+            string ch = Kiemtra(cottrunghang, "hangduocban", "matong", matong);
+            if (ch == "Đã Trưng Bán" || ch == null || ch == "")
             {
                 string sql = string.Format("UPDATE hangduocban SET {2}='{0}' WHERE matong='{1}'", "Chưa trưng bán", matong,cottrunghang);
                 MySqlCommand cmd = new MySqlCommand(sql, connection);
@@ -396,7 +409,7 @@ namespace danhmucVM_client
         {
             string sql = string.Format(@"SELECT matong as 'Mã tổng',mota as 'Mô tả',chude as 'Chủ đề',ghichu as 'Ghi chú',ngayban as 'Ngày bán',{0} as 'Trưng hàng' 
                                         FROM hangduocban 
-                                        WHERE {0} = 'Chưa trưng bán' or {0} is null order by ngaydangso", cottrunghang);
+                                        WHERE ({0} = 'Chưa trưng bán' or {0} is null or {0} = '') order by ngaydangso", cottrunghang);
             DataTable dt = new DataTable();
             Open();
             MySqlDataAdapter dta = new MySqlDataAdapter(sql, connection);
